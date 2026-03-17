@@ -60,6 +60,10 @@
     "zod": "^3.24.4",
     "ajv": "^6.12.6"
   },
+  "overrides": {
+    "ajv": "6.12.6",
+    "ajv-keywords": "3.5.2"
+  },
   "engines": {
     "node": "20.x"
   },
