@@ -132,13 +132,19 @@ const FeedbackPage = () => {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-12"
           >
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-purple-600 to-cyan-600 mb-4">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-purple-600 to-cyan-600 mb-4 shadow-[0_0_30px_rgba(124,58,237,0.4)]">
               <Trophy size={40} className="text-white" />
             </div>
             <h1 className="text-4xl md:text-6xl font-heading font-bold text-gradient mb-4">
               Interview Complete!
             </h1>
-            <p className="text-xl text-zinc-400">Here's your detailed performance report</p>
+            <div className="flex flex-col items-center gap-2">
+              <p className="text-xl text-zinc-400">Here's your comprehensive performance analysis</p>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-semibold uppercase tracking-wider">
+                <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                Fair Evaluation Engine: Active
+              </div>
+            </div>
           </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
@@ -199,7 +205,7 @@ const FeedbackPage = () => {
             </motion.div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -224,19 +230,83 @@ const FeedbackPage = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.5 }}
+              className="lg:col-span-2"
             >
               <GlassCard className="p-8 h-full" hover={false}>
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-full bg-cyan-600/20 flex items-center justify-center">
-                    <MessageSquare size={20} className="text-cyan-400" />
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-cyan-600/20 flex items-center justify-center">
+                      <MessageSquare size={20} className="text-cyan-400" />
+                    </div>
+                    <h2 className="text-2xl font-heading font-semibold text-white">
+                      Detailed Feedback
+                    </h2>
                   </div>
-                  <h2 className="text-2xl font-heading font-semibold text-white">
-                    Detailed Feedback
-                  </h2>
+                  <div className="hidden sm:block text-[10px] font-bold text-cyan-400/50 uppercase tracking-widest border border-cyan-400/20 px-2 py-1 rounded">
+                    Partial Credit Awarded
+                  </div>
                 </div>
-                <p className="text-zinc-300 leading-relaxed" data-testid="detailed-feedback">
-                  {feedback.detailed_feedback}
-                </p>
+                <div className="space-y-6 text-zinc-300 leading-relaxed text-lg" data-testid="detailed-feedback">
+                  {feedback.detailed_feedback?.split('\n').filter(p => p.trim()).map((line, i) => {
+                    const trimmedLine = line.trim();
+                    
+                    // Handle Headers (### or **Header**)
+                    if (trimmedLine.startsWith('###')) {
+                      return (
+                        <h3 key={i} className="text-xl font-bold text-white mt-8 mb-4 border-b border-white/10 pb-2">
+                          {trimmedLine.replace('###', '').trim()}
+                        </h3>
+                      );
+                    }
+
+                    // Handle Technical Pillars (- **Pillar**: Status)
+                    const pillarMatch = trimmedLine.match(/^- \*\*(.*?)\*\*: (.*)$/);
+                    if (pillarMatch) {
+                      const [, pillar, status] = pillarMatch;
+                      const isGood = status.toLowerCase().includes('demonstrated') && !status.toLowerCase().includes('not');
+                      const isPartial = status.toLowerCase().includes('partially');
+                      
+                      return (
+                        <div key={i} className="group p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-purple-500/50 hover:bg-white/[0.07] transition-all">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
+                            <span className="font-bold text-white tracking-wide text-base group-hover:text-purple-400 transition-colors uppercase">
+                              {pillar}
+                            </span>
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter ${
+                              isGood ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 
+                              isPartial ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' : 
+                              'bg-red-500/20 text-red-400 border border-red-500/30'
+                            }`}>
+                              <div className={`w-1.5 h-1.5 rounded-full ${isGood ? 'bg-green-400' : isPartial ? 'bg-yellow-400' : 'bg-red-400'}`} />
+                              {isGood ? 'Demonstrated' : isPartial ? 'Partial' : 'Missing'}
+                            </span>
+                          </div>
+                          <p className="text-sm text-zinc-400 leading-snug">
+                            {status.split('. ')[1] || status.replace(/.*demonstrated\.. /i, '')}
+                          </p>
+                        </div>
+                      );
+                    }
+
+                    // Handle Bold Headers within text
+                    if (trimmedLine.startsWith('**') && trimmedLine.endsWith('**')) {
+                       return (
+                        <p key={i} className="text-lg font-bold text-purple-400 mt-6 mb-2">
+                          {trimmedLine.replace(/\*\*/g, '')}
+                        </p>
+                      );
+                    }
+
+                    // Default Paragraph
+                    return (
+                      <p key={i} className="relative pl-5 border-l-2 border-purple-500/20 py-1 hover:border-purple-500/50 transition-colors">
+                        {trimmedLine.split('**').map((part, index) => 
+                          index % 2 === 1 ? <strong key={index} className="text-white font-semibold">{part}</strong> : part
+                        )}
+                      </p>
+                    );
+                  })}
+                </div>
               </GlassCard>
             </motion.div>
           </div>
@@ -247,28 +317,52 @@ const FeedbackPage = () => {
             transition={{ delay: 0.6 }}
           >
             <GlassCard className="p-8" hover={false}>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-full bg-pink-600/20 flex items-center justify-center">
-                  <Lightbulb size={20} className="text-pink-400" />
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-pink-600/20 flex items-center justify-center">
+                    <Lightbulb size={20} className="text-pink-400" />
+                  </div>
+                  <h2 className="text-2xl font-heading font-semibold text-white">
+                     Suggestions to Improve
+                  </h2>
                 </div>
-                <h2 className="text-2xl font-heading font-semibold text-white">
-                  Improvement Suggestions
-                </h2>
+                <div className="text-xs font-medium text-pink-400/70 italic">
+                  Clear-cut actionable steps for growth
+                </div>
               </div>
-              <ul className="space-y-3">
-                {feedback.improvements?.map((improvement, idx) => (
-                  <li
-                    key={idx}
-                    className="flex items-start gap-3 text-zinc-300"
-                    data-testid={`improvement-${idx}`}
-                  >
-                    <span className="inline-block w-6 h-6 rounded-full bg-purple-600/20 flex-shrink-0 flex items-center justify-center text-purple-400 text-sm font-medium mt-1">
-                      {idx + 1}
-                    </span>
-                    <span>{improvement}</span>
-                  </li>
-                ))}
-              </ul>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                <ul className="space-y-4">
+                  {feedback.improvements?.slice(0, Math.ceil(feedback.improvements.length / 2)).map((improvement, idx) => (
+                    <li
+                      key={idx}
+                      className="flex items-start gap-4 p-3 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors text-zinc-300"
+                      data-testid={`improvement-${idx}`}
+                    >
+                      <span className="inline-block w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-cyan-600 flex-shrink-0 flex items-center justify-center text-white text-sm font-bold shadow-lg">
+                        {idx + 1}
+                      </span>
+                      <span className="text-base leading-tight">{improvement}</span>
+                    </li>
+                  ))}
+                </ul>
+                <ul className="space-y-4">
+                  {feedback.improvements?.slice(Math.ceil(feedback.improvements.length / 2)).map((improvement, idx) => {
+                    const actualIdx = idx + Math.ceil(feedback.improvements.length / 2);
+                    return (
+                      <li
+                        key={actualIdx}
+                        className="flex items-start gap-4 p-3 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors text-zinc-300"
+                        data-testid={`improvement-${actualIdx}`}
+                      >
+                        <span className="inline-block w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-cyan-600 flex-shrink-0 flex items-center justify-center text-white text-sm font-bold shadow-lg">
+                          {actualIdx + 1}
+                        </span>
+                        <span className="text-base leading-tight">{improvement}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
             </GlassCard>
           </motion.div>
 

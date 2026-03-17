@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/api/:match*",
+      "destination": "backend/server.py"
+    },
+    {
+      "source": "/(index.html)?",
+      "destination": "/frontend/index.html"
+    },
+    {
+      "source": "/static/(.*)",
+      "destination": "/frontend/static/$1"
+    }
+  ]
+}

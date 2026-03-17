@@ -1,5 +1,3 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # IDE and editors
 .idea/
 .vscode/
@@ -19,21 +17,15 @@ node_modules/
 # Testing
 /coverage
 
-# Next.js
-/.next/
-/out/
-next-env.d.ts
-*.tsbuildinfo
-
 # Production builds
 /build
 dist/
 dist
 
-# Environment files (comprehensive coverage)
-
+# Environment files
 *token.json*
 *credentials.json*
+# *.env (Explicitly kept tracked as per user request for easy extraction)
 
 # Logs and debug files
 npm-debug.log*
@@ -41,6 +33,8 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 dump.rdb
+backend.log
+*.log
 
 # System files
 .DS_Store
@@ -52,34 +46,16 @@ __pycache__/
 venv/
 .venv/
 
-# Development tools
-chainlit.md
-.chainlit
-.ipynb_checkpoints/
-.ac
-
-# Deployment
-.vercel
-
-# Data and databases
-agenthub/agents/youtube/db
-
-# Archive files and large assets
-**/*.zip
-**/*.tar.gz
-**/*.tar
-**/*.tgz
-*.pack
-*.deb
-*.dylib
-
-# Build caches
-.cache/
-
-# Mobile development
-android-sdk/ frontend/node_modules/.cache/default-development/0.pack
-frontend/node_modules/.cache/default-development/0.pack
--e 
-# Environment files
-*.env
-*.env.*
+# Temporary testing scripts
+check_user.py
+create_preview_interview.py
+create_structured_preview.py
+list_interviews.py
+reset_pw.py
+backend_test.py
+test_login.json
+test_signup.json
+design_guidelines.json
+test_reports/
+test_result.md
+memory/
